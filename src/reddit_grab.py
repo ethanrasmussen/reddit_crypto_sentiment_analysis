@@ -60,7 +60,7 @@ class RedditSession:
             return [x for x in sorted if x is not None]
         # Assert correct input
         if sort_by not in ["title", "content"]:
-            assert Exception("Error: Invalid sort type for function")
+            raise Exception("Error: Invalid sort type for function")
         # Top 10 cryptocurrencies by market cap
         tickers = [
             ("Bitcoin", "BTC"),
