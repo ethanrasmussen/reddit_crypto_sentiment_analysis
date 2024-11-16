@@ -1,5 +1,9 @@
 # CS 410 Reddit Post Sentiment Analysis for Crypto-market Trend Prediction
 
+Necessary setup items:
+ - 'pip install -r requirements.txt'
+ - Create .env file with variables: REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET
+
 Notes on what we'll need to complete:
  - Functionality to grab & parse posts/subreddits via Reddit API (likely via PRAW package)
  - Functionality to perform sentiment analysis on our parsed text input (maybe via NLTK package or something like that?)
