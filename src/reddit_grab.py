@@ -1,7 +1,9 @@
 from praw import Reddit
 from dotenv import load_dotenv
 import os
-
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
+nltk.download('vader_lexicon')
 
 # Load from .env
 load_dotenv()
@@ -22,6 +24,7 @@ class RedditSession:
         self.client_id = id
         self.client_secret = secret
         self.user_agent = agent
+        self.sia = SentimentIntensityAnalyzer()
 
     def get_posts_from_subreddit(self, subreddit:str, sort_type:str = "top", limit:int = 10):
         sub = self.session.subreddit(subreddit)
@@ -75,3 +78,24 @@ class RedditSession:
             ("TRON", "TRX")
         ]
         return {ticker[1]: list(set(sort_helper(ticker))) for ticker in tickers}
+    
+    def get_sentiment(self, text: str) -> dict:
+        return self.sia.polarity_scores(text)
+    
+    def analyze_posts_sentiment(self, posts: list, analyze_titles: bool = True, analyze_content: bool = True) -> list:
+        results = []
+        for post in posts:
+            post_analysis = {
+                'title': post.title,
+                'url': post.permalink,
+            }
+            
+            if analyze_titles:
+                post_analysis['title_sentiment'] = self.get_sentiment(post.title)
+            
+            if analyze_content and post.selftext:
+                post_analysis['content_sentiment'] = self.get_sentiment(post.selftext)
+            
+            results.append(post_analysis)
+        
+        return results
