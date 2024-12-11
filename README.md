@@ -1,7 +1,7 @@
 # CS 410 Reddit Post Sentiment Analysis for Crypto-market Trend Prediction
 
 To run:
- - 'python -m streamlit run src/app.py'
+ - 'python -m streamlit run src/streamlit_frontend.py'
 
 Necessary setup items:
  - 'pip install -r requirements.txt'
