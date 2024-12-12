@@ -13,6 +13,12 @@ To install, clone the repository and do the following from the root:
 ## Introduction:
 Our project seeks to analyze the sentiment of Reddit users discussing various cryptocurrencies, with the goal of understanding their views on the cryptos' values. We hypothesized that users would have positive feelings toward cryptos with positive price growth, and would likely have negative feelings towards those with declining prices.
 
+## Project Breakdown:
+ - Reddit parsing functionality via PRAW
+ - Sentiment analysis functionality for parsed text via NLTK
+ - Functionality to grab current crypto pricing info/trends via yfinance
+ - Graph, displays, and frontend UI via Streamlit
+
 ## Methods & Files:
 We have three main files in our project:
 
