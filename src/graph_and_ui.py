@@ -1,69 +1,60 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
+import seaborn as sns
 import pandas as pd
 from reddit_grab import RedditSession
-from crypto_metrics import getCurrentMetrics, getHistoricalData, tickers
+from crypto_metrics import getHistoricalData, getCurrentMetrics
 
-def load_reddit_data(subreddit, sort_type, limit):
-    reddit = RedditSession()
-    posts = reddit.get_posts_from_subreddit(subreddit, sort_type, limit)
-    sentiment_analysis = reddit.analyze_posts_sentiment(posts)
-    return sentiment_analysis
+# Initialize Reddit session
+reddit = RedditSession()
 
-def load_crypto_data():
-    current_metrics = getCurrentMetrics(tickers)
-    historical_data = getHistoricalData(tickers)
-    return current_metrics, historical_data
+# Function to fetch Reddit sentiment data for a given cryptocurrency
+def get_sentiment_data(ticker: str, limit=10):
+    posts = reddit.get_sorted_contents(reddit.get_posts_from_subreddit('cryptocurrency', sort_type="top", limit=limit), sort_by="content")
+    sentiment_data = reddit.analyze_posts_sentiment(posts.get(ticker, []))
+    sentiment_df = pd.DataFrame(sentiment_data)
+    return sentiment_df
 
-def plot_sentiment(sentiment_data):
-    sentiments = [post['title_sentiment']['compound'] for post in sentiment_data]
-    plt.figure(figsize=(10, 5))
-    plt.hist(sentiments, bins=20, color='skyblue', edgecolor='black')
-    plt.title('Sentiment Distribution')
-    plt.xlabel('Sentiment Score')
-    plt.ylabel('Frequency')
-    st.pyplot(plt)
+# Function to fetch historical data for cryptocurrency from `crypto_metrics.py`
+def get_crypto_data(ticker: str):
+    historical_data = getHistoricalData([ticker])
+    historical_df = historical_data.get(ticker)
+    return historical_df
 
-def plot_crypto_data(historical_data, ticker):
-    if ticker not in historical_data:
-        st.error(f"No historical data available for {ticker}")
-        return
+# Plot the data for the selected cryptocurrency
+def plot_crypto_data(ticker):
+    crypto_data = get_crypto_data(ticker)
+    if crypto_data is not None:
+        st.subheader(f"{ticker} Price Trend")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(crypto_data.index, crypto_data['Close'], label=f'{ticker} Price')
+        ax.set_title(f'{ticker} Price Trend')
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Price (USD)')
+        ax.legend()
+        st.pyplot(fig)
+    else:
+        st.write("No data available for this cryptocurrency.")
 
-    data = historical_data[ticker]
-    df = pd.DataFrame(data)
-    df.reset_index(inplace=True)
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], mode='lines', name='Close Price'))
-    fig.update_layout(title=f"{ticker} Historical Prices", xaxis_title='Date', yaxis_title='Close Price (USD)')
-    st.plotly_chart(fig)
+# Display Reddit sentiment analysis for the selected cryptocurrency
+def display_reddit_sentiment(ticker):
+    sentiment_df = get_sentiment_data(ticker)
+    if not sentiment_df.empty:
+        st.subheader(f"Reddit Sentiment for {ticker}")
+        st.write(sentiment_df)
+    else:
+        st.write(f"No sentiment data available for {ticker}.")
 
-def display_ui():
-    st.title("Crypto-Market Trend Prediction")
-
-    st.sidebar.header("Reddit Data Settings")
-    subreddit = st.sidebar.text_input("Subreddit", value="cryptocurrency")
-    sort_type = st.sidebar.selectbox("Sort by", ["hot", "top", "rising", "new"])
-    limit = st.sidebar.slider("Number of posts", min_value=1, max_value=50, value=10)
-
-    st.sidebar.header("Crypto Data Settings")
-    selected_ticker = st.sidebar.selectbox("Select Ticker", tickers)
-
-    if st.sidebar.button("Load Data"):
-        with st.spinner("Loading Reddit data..."):
-            reddit_data = load_reddit_data(subreddit, sort_type, limit)
-            st.success("Reddit data loaded!")
-
-        with st.spinner("Loading Crypto data..."):
-            current_metrics, historical_data = load_crypto_data()
-            st.success("Crypto data loaded!")
-
-        st.subheader("Reddit Sentiment Analysis")
-        st.write(reddit_data)
-        plot_sentiment(reddit_data)
-
-        st.subheader("Crypto Historical Data")
-        plot_crypto_data(historical_data, selected_ticker)
+def main():
+    # Sidebar for selecting cryptocurrency
+    st.sidebar.title("Crypto Sentiment and Price Analysis")
+    selected_ticker = st.sidebar.selectbox("Select a Cryptocurrency", ["BTC", "ETH", "USDT", "SOL", "BNB", "XRP", "DOGE", "USDC", "ADA", "TRX"])
+    
+    # Displaying the price trend chart
+    plot_crypto_data(selected_ticker)
+    
+    # Displaying the Reddit sentiment table
+    display_reddit_sentiment(selected_ticker)
 
 if __name__ == "__main__":
-    display_ui()
+    main()
