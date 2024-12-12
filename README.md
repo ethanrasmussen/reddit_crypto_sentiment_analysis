@@ -2,6 +2,7 @@
 
 ## View a Demo Here:
 [Click here to access a publicly hosted Streamlit app](https://cs410-reddit-crypto-sentiment-analysis.streamlit.app/)
+
 [Click here to view a video demo on Mediaspace](https://mediaspace.illinois.edu/media/t/1_jfhq1l9e)
 
 ## Installation & Run:
