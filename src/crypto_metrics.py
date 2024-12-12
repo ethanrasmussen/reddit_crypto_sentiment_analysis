@@ -19,7 +19,7 @@ from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 tickers = ["BTC", "ETH", "USDT", "SOL", "BNB", "XRP", "DOGE", "USDC", "ADA", "TRX"]
 
 # Get full yfinance attribute data for each ticker
-def getAllCryptoMetrics(tickers):
+def getAllCryptoMetrics(tickers=tickers):
     tickersData = {}
     for ticker in tickers:
         tickerObject = yf.Ticker(ticker)
@@ -28,12 +28,12 @@ def getAllCryptoMetrics(tickers):
         dataFrame.reset_index(inplace=True)
         dataFrame.columns = ["Attribute", "Recent"]
 
-        tickersData[ticker] = data_frame
+        tickersData[ticker] = dataFrame
     return tickersData
 
 # Get current data about current market price, P/E ratio, 52week high and low, and
 # averageVolume the last 24 hours on each ticker
-def getCurrentMetrics(tickers):
+def getCurrentMetrics(tickers=tickers):
     tickersData = {}
     for ticker in tickers:
         dataObject = {}
@@ -50,37 +50,33 @@ def getCurrentMetrics(tickers):
     return getCurrentMetrics
 
 # get historicalData for the past year
-def getHistoricalData(tickers):
+def getHistoricalData(tickers=tickers, period="ytd", interval="1wk"):
     historicalData = {}
     for ticker in tickers:
         tickerObject = yf.Ticker(ticker)
-
-        historicalData[ticker] = tickerObject.history(period="ytd", interval="1wk")
+        historicalData[ticker] = tickerObject.history(period=period, interval=interval)
     return historicalData
 
-# print(getAllCryptoMetrics(tickers))
-print(getCurrentMetrics(tickers))
-# print(getHistoricalData(tickers))
 
+# def getCoinMarketCap():
+#   # get latest endpoint from coinmarketcap API (historical was remove from free edition)
+#   url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
+#   parameters = {
+#     'symbol': "BTC,ETH,USDT,SOL,BNB,XRP,DOGE,USDC,ADA,TRX",
+#     'convert':'USD'
+#   }
+#   headers = {
+#     'Accepts': 'application/json',
+#     'X-CMC_PRO_API_KEY': <API-KEY>,
+#   }
 
-# get latest endpoint from coinmarketcap API (historical was remove from free edition)
-url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
-parameters = {
-  'symbol': "BTC,ETH,USDT,SOL,BNB,XRP,DOGE,USDC,ADA,TRX",
-  'convert':'USD'
-}
-headers = {
-  'Accepts': 'application/json',
-  'X-CMC_PRO_API_KEY': <API-KEY>,
-}
+#   session = Session()
+#   session.headers.update(headers)
 
-session = Session()
-session.headers.update(headers)
-
-try:
-  response = session.get(url, params=parameters)
-  data = json.loads(response.text)
-  formatData = json.dumps(data, indent=4)
-  print(formatData)
-except (ConnectionError, Timeout, TooManyRedirects) as e:
-  print(e)
+#   try:
+#     response = session.get(url, params=parameters)
+#     data = json.loads(response.text)
+#     formatData = json.dumps(data, indent=4)
+#     print(formatData)
+#   except (ConnectionError, Timeout, TooManyRedirects) as e:
+#     print(e)

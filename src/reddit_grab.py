@@ -82,6 +82,9 @@ class RedditSession:
     def get_sentiment(self, text: str) -> dict:
         return self.sia.polarity_scores(text)
     
+    def get_agg_sentiments(self, texts:list):
+        return [self.get_sentiment(text) for text in texts]
+    
     def analyze_posts_sentiment(self, posts: list, analyze_titles: bool = True, analyze_content: bool = True) -> list:
         results = []
         for post in posts:
